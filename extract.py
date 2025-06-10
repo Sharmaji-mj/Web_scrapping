@@ -1,4 +1,5 @@
 from selenium import webdriver
+# from selenium.webdriver.support.ui import WebDriverWait
 import pandas as pd
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
@@ -13,10 +14,11 @@ mt=t_day.strftime("%m")
 # Open the website
 driver.get(f"https://ted.europa.eu/en/search/result?search-scope=ACTIVE&scope=ACTIVE&onlyLatestVersions=false&facet.cpv=comp%2C72000000&facet.contract-nature=services&facet.place-of-performance=SPCY%2CDEU&facet.publication-date={yr}%2C{mt}&sortColumn=publication-number&sortOrder=DESC&page=1")
 
-# Optional: Maximize window
-driver.maximize_window()
 
-# Wait for page to load (adjust if needed)
+# print("loading page")
+# t_find=WebDriverWait(driver, 30,poll_frequency=.2).until(
+#     lambda d: d.find_elements(By.CSS_SELECTOR, "table tbody tr")[0].find_elements(By.TAG_NAME, "td").is_displayed()
+# )
 time.sleep(10)
 
 # Find all rows in the tender results table
@@ -54,9 +56,17 @@ driver.quit()
 df = pd.DataFrame(data)
 df['Publication Date']=pd.to_datetime(df["Publication Date"],format="%d/%m/%Y")
 df2=df[df["Publication Date"]==(t_day-datetime.timedelta(days=1))]
-print(df2.head())
-print(df.head())
-# # Show result
-# print(df.head())
-df2.to_csv("tender.csv", index=False,encoding='utf-8')
+
+t_1day=(t_day-datetime.timedelta(days=1)).date()
+
+df2=df[df['Publication Date'].dt.date==t_1day]
+
+if df2.size==0:
+    print("no new tenders")
+else:
+    print(df2.shape[0], "number of tenders present")
+
+df2.to_csv("tender1.csv", index=False,encoding='utf-8')
+
+df2.to_csv("tender.csv", index=False)
 

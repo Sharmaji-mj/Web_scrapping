@@ -1,112 +1,62 @@
-# from selenium import webdriver
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.chrome.service import Service
-# from selenium.webdriver.support.ui import WebDriverWait
-# from selenium.webdriver.support import expected_conditions as EC
-# from webdriver_manager.chrome import ChromeDriverManager
-# import time
-# import pandas as pd
-
-# # Launch browser
-# driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-# driver.get("https://ted.europa.eu/en/search/result?search-scope=ACTIVE")
-# driver.maximize_window()
-# wait = WebDriverWait(driver, 30)
-
-# # Let React load content
-# time.sleep(10)
-
-# # Scroll to CPV section (forcefully)
-# driver.execute_script("window.scrollTo(0, document.body.scrollHeight/2);")
-# time.sleep(2)
-
-# # NEW: Find checkbox span text and click the input instead
-# try:
-#     checkbox_label = wait.until(EC.presence_of_element_located(
-#         (By.XPATH, "//span[contains(text(), 'Computer and Related Services')]/ancestor::label")))
-    
-#     driver.execute_script("arguments[0].scrollIntoView(true);", checkbox_label)
-#     time.sleep(1)
-#     checkbox_label.click()
-#     print("✅ Checkbox clicked.")
-# except Exception as e:
-#     print("❌ Could not click checkbox:", e)
-#     driver.quit()
-#     exit()
-
-# # Wait for results to reload
-# time.sleep(6)
-
-# # Scrape table
-# rows = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
-# data = []
-# for row in rows:
-#     cols = row.find_elements(By.TAG_NAME, "td")
-#     if cols and len(cols) >= 5:
-#         notice_elem = cols[1].find_element(By.TAG_NAME, "a")
-#         notice_number = notice_elem.text.strip()
-#         notice_link = notice_elem.get_attribute("href")
-#         description = cols[2].text.strip()
-#         country = cols[3].text.strip()
-#         publication_date = cols[4].text.strip()
-#         try:
-#             deadline = cols[5].text.strip()
-#         except IndexError:
-#             deadline = ""
-
-#         data.append({
-#             "Notice Number": notice_number,
-#             "Link": notice_link,
-#             "Description": description,
-#             "Country": country,
-#             "Publication Date": publication_date,
-#             "Deadline": deadline
-#         })
-
-# driver.quit()
-
-# # Save to CSV
-# df = pd.DataFrame(data)
-# df.to_csv("filtered_tenders.csv", index=False)
-# print("✅ Done. Data saved to filtered_tenders.csv")
-
-
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import pandas as pd
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 import time
+import datetime
+t_day=datetime.datetime.now()
+# Set up the driver
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+yr=t_day.strftime("%Y")
+mt=t_day.strftime("%m")
+# Open the website
+driver.get(f"https://ted.europa.eu/en/search/result?search-scope=ACTIVE&scope=ACTIVE&onlyLatestVersions=false&facet.cpv=comp%2C72000000&facet.contract-nature=services&facet.place-of-performance=SPCY%2CDEU&facet.publication-date={yr}%2C{mt}&sortColumn=publication-number&sortOrder=DESC&page=1")
 
-# Setup
-options = Options()
-options.add_argument("--start-maximized")
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+# Optional: Maximize window
+driver.maximize_window()
 
-driver.get("https://ted.europa.eu/en/search/result?search-scope=ACTIVE")
+# Wait for page to load (adjust if needed)
+time.sleep(10)
 
-wait = WebDriverWait(driver, 20)
+# Find all rows in the tender results table
+rows = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
 
-# Wait for CPV accordion to be present
-cpv_filter = wait.until(EC.presence_of_element_located((By.ID, "cpv-accordion")))
+# Prepare data
+data = []
+for row in rows:
+    cols = row.find_elements(By.TAG_NAME, "td")
+    if cols and len(cols) >= 5:
+        notice_elem = cols[1].find_element(By.TAG_NAME, "a")
+        notice_number = notice_elem.text.strip()
+        notice_link = notice_elem.get_attribute("href")
+        description = cols[2].text.strip()
+        country = cols[3].text.strip()
+        publication_date = cols[4].text.strip()
+        try:
+            deadline = cols[5].text.strip()
+        except IndexError:
+            deadline = ""
 
-# Scroll the accordion into view just in case
-driver.execute_script("arguments[0].scrollIntoView();", cpv_filter)
-time.sleep(1)
-
-# Wait until the checkbox is present
-checkbox_xpath = "//span[contains(text(),'Computer and Related Services')]/preceding::span[@class='CustomReactClasses-MuiButtonBase-root CustomReactClasses-MuiIconButton-root CustomReactClasses-MuiRadio-root CustomReactClasses-MuiRadio-colorPrimary CustomReactClasses-MuiIconButton-colorPrimary'][1]"
-
-checkbox_element = wait.until(EC.presence_of_element_located((By.XPATH, checkbox_xpath)))
-
-# Scroll the checkbox into view and click using JavaScript
-driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox_element)
-driver.execute_script("arguments[0].click();", checkbox_element)
-
-print("✅ Checkbox clicked successfully!")
-
-# Pause to verify
-time.sleep(5)
+        data.append({
+            "Notice Number": notice_number,
+            "Link": notice_link,
+            "Description": description,
+            "Country": country,
+            "Publication Date": publication_date,
+            "Deadline": deadline
+        })
+print(data[0])
+# Quit driver
 driver.quit()
+
+# Convert to DataFrame
+df = pd.DataFrame(data)
+df['Publication Date']=pd.to_datetime(df["Publication Date"],format="%d/%m/%Y")
+df2=df[df["Publication Date"]==(t_day-datetime.timedelta(days=1))]
+print(df2.head())
+print(df.head())
+# # Show result
+# print(df.head())
+df2.to_csv("tender.csv", index=False,encoding='utf-8')
+
