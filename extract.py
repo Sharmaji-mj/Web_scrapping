@@ -66,7 +66,7 @@ if df2.size==0:
 else:
     print(df2.shape[0], "number of tenders present")
 
-df2.to_csv("tender1.csv", index=False,encoding='utf-8')
+df2.to_csv("tender.csv", index=False,encoding='utf-8')
 
-df2.to_csv("tender.csv", index=False)
+
 
