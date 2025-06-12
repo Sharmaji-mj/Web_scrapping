@@ -14,11 +14,6 @@ mt=t_day.strftime("%m")
 # Open the website
 driver.get(f"https://ted.europa.eu/en/search/result?search-scope=ACTIVE&scope=ACTIVE&onlyLatestVersions=false&facet.cpv=comp%2C72000000&facet.contract-nature=services&facet.place-of-performance=SPCY%2CDEU&facet.publication-date={yr}%2C{mt}&sortColumn=publication-number&sortOrder=DESC&page=1")
 
-
-# print("loading page")
-# t_find=WebDriverWait(driver, 30,poll_frequency=.2).until(
-#     lambda d: d.find_elements(By.CSS_SELECTOR, "table tbody tr")[0].find_elements(By.TAG_NAME, "td").is_displayed()
-# )
 time.sleep(10)
 
 # Find all rows in the tender results table
@@ -48,7 +43,13 @@ for row in rows:
             "Publication Date": publication_date,
             "Deadline": deadline
         })
-print(data[0])
+# print(data[0])
+df = pd.DataFrame(data)
+# df.to_html("index.html", index=False,encoding='utf-8')
+print(df)
+
+
+
 # Quit driver
 driver.quit()
 
@@ -66,7 +67,7 @@ if df2.size==0:
 else:
     print(df2.shape[0], "number of tenders present")
 
-df2.to_csv("tender.csv", index=False,encoding='utf-8')
+#df2.to_csv("tender.csv", index=False,encoding='utf-8')
+#df2.to_html("tender.csv", index=False,encoding='utf-8')
 
-
-
+print(df2)
