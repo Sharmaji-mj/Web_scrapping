@@ -83,19 +83,19 @@ else:
 
 df_updated.to_excel(history_file, index=False)
 
-
-
-# Nice clean output for today's tenders only
-for index, row in df_all.iterrows():
-    print("=" * 100)
-    print(f"Notice Number   : {row['Notice Number']}")
-    print(f"Link            : {row['Link']}")
-    print(f"Description     : {row['Description']}")
-    print(f"Country         : {row['Country']}")
-    print(f"Publication Date: {row['Publication Date']}")
-    print(f"Deadline        : {row['Deadline']}")
-    print(f"CPV Group       : {row['CPV Group']}")
-    print("=" * 100)
-    print("\n")
+if df_all.empty:
+    print("No new tender")
+else:
+    for index, row in df_all.iterrows():
+        print("=" * 100)
+        print(f"Notice Number   : {row['Notice Number']}")
+        print(f"Link            : {row['Link']}")
+        print(f"Description     : {row['Description']}")
+        print(f"Country         : {row['Country']}")
+        print(f"Publication Date: {row['Publication Date']}")
+        print(f"Deadline        : {row['Deadline']}")
+        print(f"CPV Group       : {row['CPV Group']}")
+        print("=" * 100)
+        print("\n")
     
 
