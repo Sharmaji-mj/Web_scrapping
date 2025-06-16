@@ -6,6 +6,8 @@ from selenium.webdriver.common.by import By
 import time
 import datetime
 import os
+from bs4 import BeautifulSoup
+
 
 # Get today's date and yesterday's date
 t_day = datetime.datetime.now()
@@ -59,33 +61,43 @@ driver.quit()
 
 df = pd.DataFrame(data)
 # Create folder if not exist
-os.makedirs("tender_records", exist_ok=True)
+# os.makedirs("tender_records", exist_ok=True)
 
+print(df)
+
+
+
+
+
+
+    
+    
+    
 # Save today's data into a daily Excel file
-file_name = f"tender_records/tender_{yesterday}.xlsx"
-df.to_excel(file_name, index=False, engine='openpyxl')
+# file_name = f"tender_records/tender_{yesterday}.xlsx"
+# df.to_excel(file_name, index=False, engine='openpyxl')
 
 # Append to master Excel history file
-history_file = "tender_records/tender_history.xlsx"
+# history_file = "tender_records/tender_history.xlsx"
 
-if not os.path.isfile(history_file):
-    # If history file not exists → create new Excel file
-    df.to_excel(history_file, index=False, engine='openpyxl')
-else:
-    # Read existing file
-    history_df = pd.read_excel(history_file, engine='openpyxl')
+# if not os.path.isfile(history_file):
+#     # If history file not exists → create new Excel file
+#     df.to_excel(history_file, index=False, engine='openpyxl')
+# else:
+#     # Read existing file
+#     history_df = pd.read_excel(history_file, engine='openpyxl')
     
-    # Avoid duplicates
-    merged_df = pd.merge(df, history_df, on=["Notice Number", "Publication Date"], how='left', indicator=True)
-    new_rows = merged_df[merged_df['_merge'] == 'left_only'].drop(columns=['_merge'])
+#     # Avoid duplicates
+#     merged_df = pd.merge(df, history_df, on=["Notice Number", "Publication Date"], how='left', indicator=True)
+#     new_rows = merged_df[merged_df['_merge'] == 'left_only'].drop(columns=['_merge'])
     
-    if not new_rows.empty:
-        # Append new rows
-        updated_df = pd.concat([history_df, new_rows], ignore_index=True)
-        updated_df.to_excel(history_file, index=False, engine='openpyxl')
-        print(f"{new_rows.shape[0]} new rows appended to history.")
-    else:
-        print("No new records to append. History file already up-to-date.")
+#     if not new_rows.empty:
+#         # Append new rows
+#         updated_df = pd.concat([history_df, new_rows], ignore_index=True)
+#         updated_df.to_excel(history_file, index=False, engine='openpyxl')
+#         print(f"{new_rows.shape[0]} new rows appended to history.")
+#     else:
+#         print("No new records to append. History file already up-to-date.")
 
-# Prepare HTML file for email sending
-df.to_html("tender_records/tender_email.html", index=False, encoding='utf-8')
+# # Prepare HTML file for email sending
+# df.to_html("tender_records/tender_email.html", index=False, encoding='utf-8')
