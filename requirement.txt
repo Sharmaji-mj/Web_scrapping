@@ -1,4 +1,0 @@
-flask
-selenium
-pandas
-webdriver-manager

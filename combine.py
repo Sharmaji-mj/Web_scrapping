@@ -10,7 +10,13 @@ import os
 
 # Dates
 t_day = datetime.datetime.now()
-yesterday = (t_day - datetime.timedelta(days=1)).date()
+if t_day.weekday() == 0:  # Monday
+
+    yesterday = (t_day - datetime.timedelta(days=3)).date()
+else:
+
+    yesterday = (t_day - datetime.timedelta(days=1)).date()
+
 
 # Headless Chrome for server use
 chrome_options = Options()
@@ -83,6 +89,7 @@ else:
 
 df_updated.to_excel(history_file, index=False)
 
+
 if df_all.empty:
     print("No new tender")
 else:
@@ -97,5 +104,10 @@ else:
         print(f"CPV Group       : {row['CPV Group']}")
         print("=" * 100)
         print("\n")
+
+
+
+
+
     
 

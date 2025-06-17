@@ -1,1 +1,0 @@
-print(df.iloc[16])
