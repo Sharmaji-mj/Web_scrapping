@@ -49,7 +49,7 @@ def fetch_tenders(url, yesterday, cpv_name):
 
             publication_date = datetime.datetime.strptime(publication_date_str, "%d/%m/%Y").date()
             if publication_date == yesterday:
-                data.append({
+                di={
                     "Notice Number": notice_number,
                     "Link": notice_link,
                     "Description": description,
@@ -57,7 +57,9 @@ def fetch_tenders(url, yesterday, cpv_name):
                     "Publication Date": publication_date_str,
                     "Deadline": deadline,
                     "CPV Group": cpv_name
-                })
+                }
+                data.append(di)
+                print(di)
 
     driver.quit()
     return pd.DataFrame(data)
@@ -72,8 +74,9 @@ url_fin = f"https://ted.europa.eu/en/search/result?search-scope=ACTIVE&scope=ACT
 
 # Scrape both
 df_it = fetch_tenders(url_it, yesterday, "IT/Consulting")
+print(df_it.shape)
 df_fin = fetch_tenders(url_fin, yesterday, "Financial Services")
-
+print(df_fin.shape)
 # Combine
 df_all = pd.concat([df_it, df_fin], ignore_index=True)
 

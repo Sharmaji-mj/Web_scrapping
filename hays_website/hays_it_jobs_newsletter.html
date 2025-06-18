@@ -1,0 +1,41 @@
+import requests
+from bs4 import BeautifulSoup
+
+# Target job listing URL
+url = "https://www.hays.de/en/jobsearch/job-offers/s/IT/1/c/Germany/D1641BCE-D56C-11D3-AFB2-00105AB00B48/p/1?q=&e=false&pt=false"
+headers = {"User-Agent": "Mozilla/5.0"}
+
+# Request and parse
+response = requests.get(url, headers=headers)
+soup = BeautifulSoup(response.content, "html.parser")
+
+# Find job entries
+jobs = soup.find_all("div", class_="search__result")
+
+# Loop and print job info
+for job in jobs:
+    title_tag = job.find("a", class_="search__result__link")
+    title = title_tag.get_text(strip=True)
+    link = "https://www.hays.de" + title_tag.get("href", "#")
+
+    meta_section = job.find("ul", class_="search__result__prospect__meta")
+    employer = meta_section.find_all("li")[0].get_text(strip=True) if meta_section else "N/A"
+    location = meta_section.find_all("li")[-1].get_text(strip=True) if meta_section else "N/A"
+
+    desc_section = job.find("ul", class_="search__result__prospect__desc")
+    bullets = [li.get_text(strip=True) for li in desc_section.find_all("li")] if desc_section else []
+
+    posted_div = job.find("div", class_="search__result__footer")
+    posted_date = posted_div.get_text(strip=True).replace("Online since ", "") if posted_div else "N/A"
+
+    # Print formatted job info
+    print("=" * 80)
+    print(f"Title     : {title}")
+    print(f"Company   : {employer}")
+    print(f"Location  : {location}")
+    print(f"Posted on : {posted_date}")
+    print("Details   :")
+    for b in bullets:
+        print(f"  - {b}")
+    print(f"Link      : {link}")
+    print("=" * 80 + "\n")
