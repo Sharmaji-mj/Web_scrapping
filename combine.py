@@ -59,7 +59,7 @@ def fetch_tenders(url, yesterday, cpv_name):
                     "CPV Group": cpv_name
                 }
                 data.append(di)
-                print(di)
+                
 
     driver.quit()
     return pd.DataFrame(data)
