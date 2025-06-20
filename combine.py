@@ -74,9 +74,9 @@ url_fin = f"https://ted.europa.eu/en/search/result?search-scope=ACTIVE&scope=ACT
 
 # Scrape both
 df_it = fetch_tenders(url_it, yesterday, "IT/Consulting")
-print(df_it.shape)
+
 df_fin = fetch_tenders(url_fin, yesterday, "Financial Services")
-print(df_fin.shape)
+
 # Combine
 df_all = pd.concat([df_it, df_fin], ignore_index=True)
 
